@@ -12,7 +12,11 @@ const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY || '' });
 export const generateStylingAdvice = async (
   imageBase64: string,
   gender: Gender,
-  occasion: Occasion
+  occasion: Occasion,
+  age: string,
+  eventDetails: string,
+  budget?: string,
+  colorPreference?: string
 ): Promise<StylingResult> => {
   const modelId = "gemini-3-flash-preview"; 
 
@@ -23,7 +27,15 @@ export const generateStylingAdvice = async (
     You are a professional fashion stylist and color theory expert.
     
     1. Analyze the uploaded image to detect the person's skin tone (Fair, Medium, Olive, or Deep).
-    2. Based on the detected skin tone, the user's gender (${gender}), and the occasion (${occasion}), generate a personalized styling recommendation.
+    2. The user is ${age} years old and identifies as ${gender}.
+    3. They are attending an event described as: "${eventDetails}" (General Category: ${occasion}).
+    4. Their budget is: "${budget || "Flexible/Not Specified"}".
+    5. Their preferred color is: "${colorPreference || "None, open to suggestions"}".
+    
+    Based on their age, gender, specific event details, budget, detected skin tone, and color preference:
+    - Generate a personalized styling recommendation.
+    - If a specific color is preferred, try to incorporate it if it compliments the skin tone; otherwise, suggest a harmonizing alternative and explain why.
+    - Keep the budget in mind when suggesting types of fabrics or brands in the explanation (e.g., silk/linen for higher budgets, blends for lower).
     
     Provide:
     - Detected Skin Tone
@@ -31,8 +43,8 @@ export const generateStylingAdvice = async (
     - Accessories list
     - Hairstyle recommendation
     - Color palette (Primary, Secondary, Accent)
-    - Detailed explanation of why these colors and styles suit this skin tone
-    - 5 shopping search keywords suitable for Indian e-commerce websites (Amazon.in, Myntra, Zara)
+    - Detailed explanation of why these colors and styles suit this skin tone, age, event, and budget.
+    - 5 shopping search keywords suitable for Indian e-commerce websites (Amazon.in, Myntra, Ajio, Nykaa Fashion)
   `;
 
   try {
@@ -91,6 +103,10 @@ export const generateStylingAdvice = async (
       userImage: imageBase64,
       gender,
       occasion,
+      age,
+      eventDetails,
+      budget,
+      colorPreference,
       ...parsedData
     };
 

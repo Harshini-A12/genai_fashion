@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
   isLoading?: boolean;
 }
 
@@ -14,21 +14,22 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props 
 }) => {
-  const baseStyles = "px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#121212]";
+  const baseStyles = "px-6 py-3 rounded-full font-medium transition-all duration-300 flex items-center justify-center tracking-wide focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#FAF9F6] disabled:opacity-70 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-[#e0e0e0] text-[#121212] hover:bg-white hover:shadow-lg hover:shadow-white/5 focus:ring-[#e0e0e0]",
-    secondary: "bg-[#2a2a2a] text-[#e0e0e0] hover:bg-[#333333] focus:ring-[#333333]",
-    outline: "border border-[#2c2c2c] text-[#a0a0a0] hover:text-[#e0e0e0] hover:border-[#e0e0e0] bg-transparent focus:ring-[#2c2c2c]"
+    primary: "bg-[#2D2D2D] text-white hover:bg-[#4A4A4A] shadow-md hover:shadow-lg hover:-translate-y-0.5",
+    secondary: "bg-[#E6D5B8] text-[#3D2E1E] hover:bg-[#D4C3A3] shadow-sm hover:shadow-md",
+    outline: "border border-[#C1A17C] text-[#8C6B4A] hover:bg-[#FDFBF7] hover:border-[#A68868]",
+    ghost: "bg-transparent text-[#666666] hover:text-[#2D2D2D] hover:bg-[#F0EFE9]"
   };
 
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${isLoading || disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+      className={`${baseStyles} ${variants[variant]} ${className}`}
       disabled={isLoading || disabled}
       {...props}
     >
-      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin text-current" />}
       {children}
     </button>
   );

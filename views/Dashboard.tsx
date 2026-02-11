@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { User, Gender, Occasion, StylingResult } from '../types';
 import { Button } from '../components/Button';
 import { Select } from '../components/Select';
-import { Upload, X, AlertCircle } from 'lucide-react';
+import { Input } from '../components/Input';
+import { Upload, X, AlertCircle, Sparkles } from 'lucide-react';
 import { generateStylingAdvice } from '../services/geminiService';
 
 interface DashboardProps {
@@ -13,6 +14,10 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({ user, onAnalysisComplete }) => {
   const [gender, setGender] = useState<Gender>(Gender.MALE);
   const [occasion, setOccasion] = useState<Occasion>(Occasion.CASUAL);
+  const [age, setAge] = useState<string>('');
+  const [eventDetails, setEventDetails] = useState<string>('');
+  const [budget, setBudget] = useState<string>('');
+  const [colorPref, setColorPref] = useState<string>('');
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,12 +52,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onAnalysisComplete }
       setError("Please upload a photo first.");
       return;
     }
+    if (!age) {
+      setError("Please enter your age.");
+      return;
+    }
 
     setIsAnalyzing(true);
     setError(null);
 
     try {
-      const result = await generateStylingAdvice(image, gender, occasion);
+      const result = await generateStylingAdvice(image, gender, occasion, age, eventDetails, budget, colorPref);
       
       // Save to local storage history
       const historyStr = localStorage.getItem(`history_${user?.id}`);
@@ -69,38 +78,41 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onAnalysisComplete }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Styling Dashboard</h1>
-        <p className="text-[#a0a0a0]">Configure your preferences and upload a photo to get started.</p>
+    <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="mb-10 text-center">
+        <h1 className="text-4xl font-serif font-bold text-[#2D2D2D] mb-3">Styling Studio</h1>
+        <p className="text-[#666666] font-light text-lg">Let's create your perfect look for the day.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {/* Left Column: Image Upload */}
-        <div className="bg-[#1e1e1e] p-6 rounded-2xl border border-[#2c2c2c] h-fit">
-          <h2 className="text-lg font-semibold text-white mb-4">1. Upload Photo</h2>
+        <div className="bg-white p-8 rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-[#F0EFE9] h-fit">
+          <div className="flex justify-between items-center mb-6">
+             <h2 className="text-xl font-serif font-semibold text-[#2D2D2D]">1. Your Photo</h2>
+             <span className="text-xs font-bold text-[#C1A17C] bg-[#FDFBF7] px-3 py-1 rounded-full border border-[#E6D5B8]">REQUIRED</span>
+          </div>
           
-          <div className={`relative border-2 border-dashed rounded-xl transition-colors ${image ? 'border-[#2c2c2c] bg-[#121212]' : 'border-[#404040] hover:border-[#606060] bg-[#1a1a1a]'} aspect-[3/4] flex flex-col items-center justify-center overflow-hidden`}>
+          <div className={`relative border-2 border-dashed rounded-3xl transition-all duration-300 ${image ? 'border-transparent shadow-md' : 'border-[#D1C7BD] hover:border-[#C1A17C] bg-[#FAF9F6]'} aspect-[3/4] flex flex-col items-center justify-center overflow-hidden group`}>
             {image ? (
               <>
-                <img src={image} alt="Uploaded" className="w-full h-full object-cover" />
+                <img src={image} alt="Uploaded" className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
                 <button 
                   onClick={handleRemoveImage}
-                  className="absolute top-3 right-3 bg-black/50 text-white p-1.5 rounded-full hover:bg-red-500/80 transition-colors backdrop-blur-sm"
+                  className="absolute top-4 right-4 bg-white/80 text-[#2D2D2D] p-2 rounded-full hover:bg-red-50 hover:text-red-500 transition-colors backdrop-blur-md shadow-sm"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </>
             ) : (
               <div 
-                className="flex flex-col items-center cursor-pointer p-8 text-center"
+                className="flex flex-col items-center cursor-pointer p-8 text-center w-full h-full justify-center"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="bg-[#2a2a2a] p-4 rounded-full mb-4">
-                  <Upload className="h-8 w-8 text-[#a0a0a0]" />
+                <div className="bg-white p-5 rounded-full mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                  <Upload className="h-8 w-8 text-[#C1A17C]" />
                 </div>
-                <p className="text-[#e0e0e0] font-medium mb-1">Click to upload photo</p>
-                <p className="text-[#666666] text-sm">JPG, PNG up to 5MB</p>
+                <p className="text-[#2D2D2D] font-medium mb-1 text-lg">Upload Portrait</p>
+                <p className="text-[#888888] text-sm font-light">Natural lighting works best</p>
               </div>
             )}
             <input 
@@ -112,55 +124,94 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onAnalysisComplete }
             />
           </div>
           {error && (
-            <div className="mt-4 p-3 bg-red-900/20 border border-red-900/50 rounded-lg flex items-start gap-2 text-red-200 text-sm">
-              <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 text-red-600 text-sm">
+              <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
         </div>
 
         {/* Right Column: Preferences */}
-        <div className="flex flex-col space-y-6">
-          <div className="bg-[#1e1e1e] p-6 rounded-2xl border border-[#2c2c2c]">
-            <h2 className="text-lg font-semibold text-white mb-4">2. Preferences</h2>
+        <div className="flex flex-col h-full space-y-8">
+          <div className="bg-white p-8 rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-[#F0EFE9]">
+            <h2 className="text-xl font-serif font-semibold text-[#2D2D2D] mb-6">2. Your Profile & Event</h2>
             <div className="space-y-6">
-              <Select
-                label="Gender Preference"
-                value={gender}
-                onChange={(e) => setGender(e.target.value as Gender)}
-                options={[
-                  { value: Gender.MALE, label: 'Male' },
-                  { value: Gender.FEMALE, label: 'Female' },
-                  { value: Gender.NON_BINARY, label: 'Non-Binary' }
-                ]}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <Select
+                  label="Gender"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value as Gender)}
+                  options={[
+                    { value: Gender.MALE, label: 'Male' },
+                    { value: Gender.FEMALE, label: 'Female' },
+                    { value: Gender.NON_BINARY, label: 'Non-Binary' }
+                  ]}
+                />
+                <Input
+                  label="Age"
+                  type="number"
+                  placeholder="e.g. 25"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  min="1"
+                  max="120"
+                />
+              </div>
               
               <Select
-                label="Occasion"
+                label="Occasion Category"
                 value={occasion}
                 onChange={(e) => setOccasion(e.target.value as Occasion)}
                 options={[
-                  { value: Occasion.CASUAL, label: 'Casual - Everyday Wear' },
+                  { value: Occasion.CASUAL, label: 'Casual - Everyday Chic' },
                   { value: Occasion.BUSINESS, label: 'Business - Professional' },
-                  { value: Occasion.FORMAL, label: 'Formal - Gala & Events' },
-                  { value: Occasion.PARTY, label: 'Party - Night Out' }
+                  { value: Occasion.FORMAL, label: 'Formal - Gala & Black Tie' },
+                  { value: Occasion.PARTY, label: 'Party - Social Event' }
                 ]}
               />
+
+              <Input 
+                label="Specific Event Details"
+                placeholder="e.g. Best friend's beach wedding"
+                value={eventDetails}
+                onChange={(e) => setEventDetails(e.target.value)}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input 
+                    label="Budget (Approx)"
+                    placeholder="e.g. ₹5,000 or $100"
+                    value={budget}
+                    onChange={(e) => setBudget(e.target.value)}
+                />
+                <Input 
+                    label="Preferred Color (Optional)"
+                    placeholder="e.g. Emerald Green"
+                    value={colorPref}
+                    onChange={(e) => setColorPref(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="bg-[#1e1e1e] p-6 rounded-2xl border border-[#2c2c2c] flex-grow flex flex-col justify-end">
-            <h2 className="text-lg font-semibold text-white mb-2">3. Generate</h2>
-            <p className="text-[#a0a0a0] text-sm mb-6">
-              Our AI will analyze your skin tone from the photo and create a tailored look for your selected occasion.
+          <div className="bg-gradient-to-br from-[#2D2D2D] to-[#1a1a1a] p-8 rounded-[2rem] shadow-xl text-white flex-grow flex flex-col justify-center relative overflow-hidden">
+            {/* Background pattern */}
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+                <Sparkles className="h-32 w-32" />
+            </div>
+            
+            <h2 className="text-xl font-serif font-semibold text-white mb-3 relative z-10">3. Create Look</h2>
+            <p className="text-[#A0A0A0] text-sm mb-8 font-light relative z-10">
+              Our AI stylist will analyze your complexion, age, event, and budget to craft a bespoke outfit recommendation complete with shopping links.
             </p>
             <Button 
+              variant="secondary"
               onClick={handleGenerate} 
               isLoading={isAnalyzing} 
               disabled={!image}
-              className="w-full py-4 text-lg"
+              className="w-full py-4 text-lg font-serif relative z-10 shadow-lg shadow-[#000]/20"
             >
-              {isAnalyzing ? 'Analyzing Skin Tone...' : 'Generate Recommendations'}
+              {isAnalyzing ? 'Styling in progress...' : 'Curate My Style'}
             </Button>
           </div>
         </div>

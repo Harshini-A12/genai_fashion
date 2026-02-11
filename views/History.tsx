@@ -22,44 +22,50 @@ export const History: React.FC<HistoryProps> = ({ user, onSelectResult, onBack }
   }, [user]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
-      <div className="flex items-center justify-between mb-8">
-        <Button variant="outline" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+    <div className="max-w-7xl mx-auto px-6 py-8 md:py-12">
+      <div className="flex items-center justify-between mb-10">
+        <Button variant="ghost" onClick={onBack} className="pl-0 hover:bg-transparent hover:text-[#C1A17C]">
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Back to Dashboard
         </Button>
-        <h1 className="text-2xl font-bold text-white">Styling History</h1>
+        <h1 className="text-3xl font-serif font-bold text-[#2D2D2D]">Your Style Archive</h1>
       </div>
 
       {history.length === 0 ? (
-        <div className="text-center py-24 bg-[#1e1e1e] rounded-2xl border border-[#2c2c2c]">
-          <Clock className="h-12 w-12 text-[#404040] mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-white mb-2">No History Found</h3>
-          <p className="text-[#a0a0a0]">Your styling sessions will appear here.</p>
+        <div className="text-center py-32 bg-white rounded-[2rem] border border-[#F0EFE9] shadow-sm">
+          <Clock className="h-16 w-16 text-[#E0E0E0] mx-auto mb-6" />
+          <h3 className="text-2xl font-serif font-bold text-[#2D2D2D] mb-3">No Styles Yet</h3>
+          <p className="text-[#888888] font-light">Your personal fashion journey begins with your first upload.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {history.map((item) => (
             <div 
               key={item.id} 
-              className="bg-[#1e1e1e] rounded-xl border border-[#2c2c2c] overflow-hidden hover:border-[#404040] transition-colors cursor-pointer group"
+              className="bg-white rounded-[2rem] border border-[#F0EFE9] overflow-hidden shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 cursor-pointer group hover:-translate-y-1"
               onClick={() => onSelectResult(item)}
             >
-              <div className="relative aspect-video">
-                <img src={item.userImage} alt="User" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1e1e1e] to-transparent opacity-80" />
-                <div className="absolute bottom-3 left-4">
-                  <p className="text-white font-medium text-sm">{new Date(item.date).toLocaleDateString()}</p>
-                  <p className="text-[#a0a0a0] text-xs">{item.occasion} • {item.gender}</p>
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img src={item.userImage} alt="User" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                <div className="absolute bottom-4 left-6 pr-4">
+                  <p className="text-white font-medium text-sm backdrop-blur-sm bg-black/20 px-3 py-1 rounded-full inline-block mb-1">
+                    {new Date(item.date).toLocaleDateString()}
+                  </p>
+                  <p className="text-white/90 text-xs font-light tracking-wide uppercase truncate">
+                    {item.eventDetails ? item.eventDetails : item.occasion} • {item.gender}
+                  </p>
                 </div>
               </div>
-              <div className="p-4">
-                <div className="flex space-x-2 mb-3">
-                  <div className="h-4 w-4 rounded-full shadow-sm" style={{ backgroundColor: item.colorPalette.primary }} />
-                  <div className="h-4 w-4 rounded-full shadow-sm" style={{ backgroundColor: item.colorPalette.secondary }} />
-                  <div className="h-4 w-4 rounded-full shadow-sm" style={{ backgroundColor: item.colorPalette.accent }} />
+              <div className="p-6">
+                <div className="flex space-x-3 mb-4">
+                  <div className="h-6 w-6 rounded-full shadow-md ring-2 ring-white" style={{ backgroundColor: item.colorPalette.primary }} />
+                  <div className="h-6 w-6 rounded-full shadow-md ring-2 ring-white" style={{ backgroundColor: item.colorPalette.secondary }} />
+                  <div className="h-6 w-6 rounded-full shadow-md ring-2 ring-white" style={{ backgroundColor: item.colorPalette.accent }} />
                 </div>
-                <p className="text-sm text-[#a0a0a0] line-clamp-2">{item.explanation}</p>
+                <p className="text-sm text-[#666666] line-clamp-3 font-serif leading-relaxed italic border-t border-[#F0EFE9] pt-4">
+                    "{item.explanation}"
+                </p>
               </div>
             </div>
           ))}

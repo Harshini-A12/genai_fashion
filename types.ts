@@ -31,6 +31,10 @@ export interface StylingResult {
   detectedSkinTone: SkinTone;
   gender: Gender;
   occasion: Occasion;
+  age?: string;
+  eventDetails?: string;
+  budget?: string;
+  colorPreference?: string;
   outfit: {
     top: string;
     bottom: string;
